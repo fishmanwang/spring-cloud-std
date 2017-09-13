@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author tjwang
  * @version $Id: SchedualServiceHi.java, v 0.1 2017/9/13 0013 11:31 tjwang Exp $
  */
-@FeignClient("service-hi")
+@FeignClient(value = "service-hi", fallback = SchedualServiceHiHystrict.class)
 public interface SchedualServiceHi {
 
     @RequestMapping(value = "/hi", method = RequestMethod.GET)
