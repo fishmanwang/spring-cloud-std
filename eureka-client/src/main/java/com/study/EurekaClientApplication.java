@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.study;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -11,17 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableEurekaClient
 @SpringBootApplication
 @RestController
-public class DemoApplication {
+public class EurekaClientApplication {
 
-    @Value("${server.port}")
-    String port;
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaClientApplication.class, args);
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
-    }
+	@Value("${server.port}")
+	private String port;
 
-    @RequestMapping("/hi")
-    public String home(@RequestParam String name) {
-        return "hi " + name + ",i am from port:" + port;
-    }
+	@RequestMapping("/hi")
+	public String home(@RequestParam String name) {
+		return "hi " + name + ", I am from prot: " + port;
+	}
+
 }
