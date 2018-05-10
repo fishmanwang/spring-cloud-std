@@ -2,8 +2,9 @@
  * BBD Service Inc
  * All Rights Reserved @2016
  */
-package com.example.demo;
+package com.example.demo.controller;
 
+import com.example.demo.rpc.HiServiceRpc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class HiController {
 
     @Autowired
-    private SchedualServiceHi schedualServiceHi;
+    private HiServiceRpc hiServiceRpc;
 
-    @RequestMapping(value = "/hi", method = RequestMethod.GET)
+    @RequestMapping(value = "/hello", method = RequestMethod.GET)
     String sayHi(@RequestParam(value = "name") String name) {
-        return schedualServiceHi.sayHiFromClientOne(name);
+        return hiServiceRpc.sayHello(name);
     }
 
 }

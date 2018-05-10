@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,5 +41,12 @@ public class ServiceMiyaApplication {
         logger.info("hi is being called");
         return restTemplate.getForObject("http://localhost:8988/info", String.class);
     }
+
+    @RequestMapping("/hello")
+    public String hello(@RequestParam(value = "name") String name) {
+        logger.info("hello is being called");
+        return "Hello " + name;
+    }
+
 
 }
