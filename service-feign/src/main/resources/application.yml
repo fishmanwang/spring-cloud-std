@@ -2,8 +2,75 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+
 server:
   port: 8765
+
 spring:
   application:
     name: service-feign
+
+management:
+  security:
+    enabled: false    #关闭actuator鉴权功能
+
+feign:
+  hystrix:
+    enabled: true     #打开Hystrix功能（不要和hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds一起使用）
+  compression:
+    request:
+      enabled: true   #配置请求GZIP压缩
+      mime-types: text/xml,application/xml,application/json #配置压缩支持的MIME TYPE
+      min-request-size: 2048  #配置压缩数据大小的下限
+    response:
+      enabled: true   #配置响应GZIP压缩
+
+# HystrixCommandProperties
+hystrix:
+  command:
+    default:
+      circuitBreaker:
+        enabled: true                     #是否开启断路器功能
+        requestVolumeThreshold: 50        #默认值：20,该属性设置滚动窗口中将使断路器跳闸的最小请求数量。如果此属性值为20，则在窗口时间内（如10s内），如果只收到19个请求且都失败了，则断路器也不会开启。number of requests that must be made within a statisticalWindow before open/close decisions are made using stats.
+        sleepWindowInMilliseconds: 5000   #默认值：5000，断路器跳闸后，在此值的时间的内，hystrix会拒绝新的请求，只有过了这个时间断路器才会打开闸门
+        errorThresholdPercentage: 50      #设置失败百分比的阈值。如果失败比率超过这个值，则断路器跳闸并且进入fallback逻辑
+        forceOpen: false                  #默认值：false，如果设置true，则强制使断路器跳闸，则会拒绝所有的请求.此值会覆盖circuitBreaker.forceClosed的值
+        forceClosed: false                #默认值：false，如果设置true，则强制使断路器进行关闭状态，此时会允许执行所有请求，无论是否失败的次数达到circuitBreaker.errorThresholdPercentage值
+
+        # 注：requestVolumeThreshold与errorThresholdPercentage关系：窗口时间内至少有requestVolumeThreshold个请求，并且失败比率达到errorThresholdPercentage才开启熔断。
+
+      execution:
+        timeout:
+          enabled: true                   #打开熔断功能
+        isolation:
+          thread:
+            timeoutInMilliseconds: 1000   #设置熔断超时时间
+            interruptOnTimeout: true      #表示设置是否在执行超时时，中断HystrixCommand.run() 的执行
+  threadpool:
+    default:
+      coreSize: 10        #最高峰时每秒的请求数量 × 99 % 命令执行时间 + 喘息空间。设置线程池数量的主要原则是保持线程池越小越好，因为它是减轻负载并防止资源在延迟发生时被阻塞的主要工具
+      maximumSize: 10     #默认值：10。设置最大的线程池的大小，只有设置allowMaximumSizeToDivergeFromCoreSize时，此值才起作用
+      maxQueueSize: -1    #默认值：-1，设置最大的BlockingQueue队列的值。如果设置-1，则使用SynchronousQueue队列，如果设置正数，则使用LinkedBlockingQueue队列
+      queueSizeRejectionThreshold: 5  #默认值：5。因为maxQueueSize值不能被动态修改，所有通过设置此值可以实现动态修改等待队列长度。即等待的队列的数量大于queueSizeRejectionThreshold时（但是没有达到maxQueueSize值），则开始拒绝后续的请求进入队列。如果设置-1，则属性不启作用。
+      keepAliveTimeMinutes: 1         #默认值：1。设置线程多久没有服务后，需要释放（maximumSize-coreSize ）个线程
+      allowMaximumSizeToDivergeFromCoreSize: false  #默认值：false。设置allowMaximumSizeToDivergeFromCoreSize值为true时，maximumSize才有作用
+
+metrics:
+  rollingStats:
+    timeInMilliseconds: 10000       #默认值： 10000，设置统计滚动窗口的时间长度,如果此值为10s，将窗口分成10个桶，每个桶表示1s时间
+    numBuckets: 10                  #设置统计滚动窗口的桶数量，在高并发的环境里，每个桶的时间长度建议大于100ms
+  rollingPercentile:
+    enabled: true                   #默认值： true,设置执行延迟是否被跟踪，并且被计算在失败百分比中。如果设置为false,则所有的统计数据返回-1
+    timeInMilliseconds: 60000       #此属性设置统计滚动百分比窗口的持续时间
+    numBuckets: 6                   #默认值：6，设置统计滚动百分比窗口的桶数量，在高并发的环境里，每个桶的时间长度建议大于1000ms
+    bucketSize: 100                 #默认值：100。how many values will be stored in each percentileWindowBucket。如果桶数量是100，统计窗口为10s，如果这10s里有500次执行，只有最后100次执行会被统计到bucket里去。
+  healthSnapshot:
+    intervalInMilliseconds: 500     #默认值：500，采样时间间隔
+
+user-feign:
+  ribbon:
+    ConnectTimeout: 600             #设置针对user-feign服务的连接超时时间
+    ReadTimeout: 6000               #设置针对user-feign服务的读取超时时间
+    OkToRetryOnAllOperations: false #设置针对user-feign服务所有操作请求都进行重试。false，只有get请求会重试。
+    MaxAutoRetriesNextServer: 2     #设置针对user-feign服务切换实例的重试次数
+    MaxAutoRetries: 2               #设置针对user-feign服务的当前实例的重试次数
